@@ -1,21 +1,16 @@
 package com.example.parker.barbot_mark_002;
 
-import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MenuItem;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.content.Intent;
 import android.view.View;
 
@@ -135,19 +130,18 @@ public class MainActivity extends AppCompatActivity {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String name = adapterView.getItemAtPosition(i).toString();
-                Log.d(name, "onItemClick: You Clicked on " + name);
+                String liquid = adapterView.getItemAtPosition(i).toString();
+                Log.d(name, "onItemClick: You Clicked on " + liquid);
 
-                Cursor data = myDbHelper.getItemID(name, TABLE_NAME); //get the id associated with that name
+                Cursor data = myDbHelper.getItemID(liquid, TABLE_NAME); //get the id associated with that name
                 int itemID = -1;
                 while(data.moveToNext()){
                     itemID = data.getInt(0);
                 }
                 if(itemID > -1){
                     Log.d(name, "onItemClick: The ID is: " + itemID);
-                    Intent editScreenIntent = new Intent(MainActivity.this, DrinkLevelActivity.class);
-                    editScreenIntent.putExtra("id",itemID);
-                    editScreenIntent.putExtra("name",name);
+                    Intent editScreenIntent = new Intent(MainActivity.this, DrinksMenuActivity.class);
+                    editScreenIntent.putExtra("liquidFilter",liquid);
                     startActivity(editScreenIntent);
                 }
                 else{

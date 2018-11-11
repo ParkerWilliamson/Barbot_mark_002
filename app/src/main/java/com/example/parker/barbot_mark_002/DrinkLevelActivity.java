@@ -2,32 +2,42 @@ package com.example.parker.barbot_mark_002;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
+
 public class DrinkLevelActivity extends AppCompatActivity {
-    int id = -1;
     String name = "name";
     DatabaseHelper myDbHelper  = new DatabaseHelper(this);
-
+    Cursor data;
+    Cursor ingredientData;
+    float percentToTime=20000;//assumes total 5 oz drink at a rate of .25 oz/sec  #1.5 oz = shot #four count is about 1 shot => ~=5 oz for cocktail
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            id = extras.getInt("id");
             name = extras.getString("name");
         }
         setTitle(name);
@@ -47,13 +57,13 @@ public class DrinkLevelActivity extends AppCompatActivity {
 
         String rowQuery = "SELECT * FROM Drinks WHERE Drink = '"+ name + "'";
         //get the garnishment test to display
-        Cursor data = myDbHelper.getQuery(rowQuery);
+        data = myDbHelper.getQuery(rowQuery);
         String garnishments;
         data.moveToFirst();
         garnishments = data.getString(data.getColumnIndex("Garnishments"));
         //parse ingredients
         String ingredientsQuery = "SELECT * FROM Liquids";
-        Cursor ingredientData = myDbHelper.getQuery(ingredientsQuery);
+        ingredientData = myDbHelper.getQuery(ingredientsQuery);
         String ingredients = "";
         while(ingredientData.moveToNext()){
             //get the value from the database in column 1
@@ -102,7 +112,63 @@ public class DrinkLevelActivity extends AppCompatActivity {
                 });
             }
         }, 0, 1000);
+
+        // set the recipe in the arduino when button is pressed
+        Button btnPour = (Button) findViewById(R.id.btnPour);
+        btnPour.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //ingredientData = all liquids from liquids table
+                //data = selected drink row from drinks table
+                String DrinkId = String.valueOf(data.getInt(0));
+                String URLaddendem = "recipe="+DrinkId;
+                //String ingredientsQuery = "SELECT * FROM Liquids";
+                //ingredientData = myDbHelper.getQuery(ingredientsQuery);
+                Toast.makeText(DrinkLevelActivity.this,"here",Toast.LENGTH_SHORT).show();
+                ingredientData.moveToFirst();
+                while(ingredientData.moveToNext()){
+                    int LiquidId = ingredientData.getInt(0);
+                    String Liquid = ingredientData.getString(1);
+                    Float percentage =  data.getFloat(data.getColumnIndex(Liquid));
+                    URLaddendem += "B"+ String.valueOf(LiquidId)+"=";
+                    URLaddendem += Math.round(percentToTime*percentage);
+                    //Toast.makeText(DrinkLevelActivity.this,String.valueOf(LiquidId),Toast.LENGTH_SHORT).show();
+                }
+                Toast.makeText(DrinkLevelActivity.this,URLaddendem,Toast.LENGTH_SHORT).show();
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    new DrinkLevelActivity.Background_get().execute(URLaddendem);
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    new DrinkLevelActivity.Background_get().execute(URLaddendem);
+                }
+                return true;
+            }
+        });
     }
 
+    //writes the get command
+    private class Background_get extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                /* Change the IP to the IP you set in the arduino sketch */
+                URL url = new URL("http://192.168.1.177/?" + params[0]);
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
+                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder result = new StringBuilder();
+                String inputLine;
+                while ((inputLine = in.readLine()) != null)
+                    result.append(inputLine).append("\n");
+
+                in.close();
+                connection.disconnect();
+                return result.toString();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+    }
 }
