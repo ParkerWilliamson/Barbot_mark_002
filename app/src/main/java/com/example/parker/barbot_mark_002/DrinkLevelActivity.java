@@ -31,7 +31,10 @@ public class DrinkLevelActivity extends AppCompatActivity {
     DatabaseHelper myDbHelper  = new DatabaseHelper(this);
     Cursor data;
     Cursor ingredientData;
-    float percentToTime=20000;//assumes total 5 oz drink at a rate of .25 oz/sec  #1.5 oz = shot #four count is about 1 shot => ~=5 oz for cocktail
+
+    float percentToTime=45000; //goal is 250 mL
+    //Calibration after init => 20000 results in  250 ml total drink volume
+    //assumed total 5 oz drink at a rate of .25 oz/sec  #1.5 oz = shot #four count is about 1 shot => ~=5 oz for cocktail
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
