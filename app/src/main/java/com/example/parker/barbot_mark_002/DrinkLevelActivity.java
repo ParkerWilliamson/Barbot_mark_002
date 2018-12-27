@@ -129,10 +129,15 @@ public class DrinkLevelActivity extends AppCompatActivity {
                 //ingredientData = myDbHelper.getQuery(ingredientsQuery);
                 Toast.makeText(DrinkLevelActivity.this,"here",Toast.LENGTH_SHORT).show();
                 ingredientData.moveToFirst();
+                int LiquidId = ingredientData.getInt(0); //N
+                String Liquid = ingredientData.getString(1); //N
+                Float percentage =  data.getFloat(data.getColumnIndex(Liquid)); //N
+                URLaddendem += "B"+ String.valueOf(LiquidId)+"="; //N
+                URLaddendem += Math.round(percentToTime*percentage); //N
                 while(ingredientData.moveToNext()){
-                    int LiquidId = ingredientData.getInt(0);
-                    String Liquid = ingredientData.getString(1);
-                    Float percentage =  data.getFloat(data.getColumnIndex(Liquid));
+                    LiquidId = ingredientData.getInt(0);
+                    Liquid = ingredientData.getString(1);
+                    percentage =  data.getFloat(data.getColumnIndex(Liquid));
                     URLaddendem += "B"+ String.valueOf(LiquidId)+"=";
                     URLaddendem += Math.round(percentToTime*percentage);
                     //Toast.makeText(DrinkLevelActivity.this,String.valueOf(LiquidId),Toast.LENGTH_SHORT).show();
