@@ -20,7 +20,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //1
     private final Context myContext;
     private static String DB_PATH = "/data/data/com.example.parker.barbot_mark_002/";
-    private static String DB_NAME = "init_drink_info_02.db";
+    private static String DB_NAME = "init_drink_info_03.db";
     private SQLiteDatabase myDataBase;
 
     //1

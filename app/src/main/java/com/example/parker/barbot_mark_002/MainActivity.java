@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -71,14 +72,24 @@ public class MainActivity extends AppCompatActivity {
 
 
         // set the recipe in the arduino when button is pressed
-        Button setRecipe1Button = (Button) findViewById(R.id.setRecipe1Button);
-        setRecipe1Button.setOnTouchListener(new View.OnTouchListener() {
+        //Button randomDrink = (Button) findViewById(R.id.randomDrink);
+        /*randomDrink.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
+            public void randomDrink.onClick(View v, MotionEvent event) {
+                //select a random number associated with a drink
+                Random r = new Random();
+                int numOfDrinks = myDbHelper.getQuery("SELECT COUNT(*) FROM Drinks").getInt(0); //21;
+                String randDrinkId = String.valueOf(r.nextInt(numOfDrinks-1)+1);
+                //go to the drink page associate with the randomly selected number
+                Intent intent = new Intent (MainActivity.this, DrinksMenuActivity.class);
+                String name = myDbHelper.getQuery("SELECT Drink FROM Drinks WHERE _id="+randDrinkId).getString(0);
+                intent.putExtra("name", name);
+                startActivity(intent);
+
                 // get EditText by id and store it into "num"
-                EditText num = (EditText) findViewById(R.id.recipeSelector);
+                //EditText num = (EditText) findViewById(R.id.recipeSelector);
                 // Store EditText - Input in variable
-                int recipeSel = Integer.parseInt(num.getText().toString());
+                /*int recipeSel = Integer.parseInt(num.getText().toString());
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     new Background_get().execute("recipe="+recipeSel);
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -86,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 return true;
             }
-        });
+        });*/
 
         mListView = findViewById(R.id.List);
 
@@ -155,6 +166,24 @@ public class MainActivity extends AppCompatActivity {
     //go to screen 2 button
     public void goToScreen2 (View view){
         Intent intent = new Intent (this, DrinksMenuActivity.class);
+        startActivity(intent);
+    }
+
+    //go to random drink button
+    public void randomDrink (View view){
+        //select a random number associated with a drink
+        Random r = new Random();
+        Cursor count= myDbHelper.getQuery("SELECT COUNT(*) FROM Drinks");
+        count.moveToFirst();
+
+        int numOfDrinks = count.getInt(0); //20;
+        String randDrinkId = String.valueOf(r.nextInt(numOfDrinks)+1);
+        //go to the drink page associate with the randomly selected number
+        Intent intent = new Intent (MainActivity.this, DrinkLevelActivity.class);
+        Cursor randomDrink =  myDbHelper.getQuery("SELECT Drink FROM Drinks WHERE _id="+randDrinkId);
+        randomDrink.moveToFirst();
+        String name = randomDrink.getString(0);
+        intent.putExtra("name", name);
         startActivity(intent);
     }
 
