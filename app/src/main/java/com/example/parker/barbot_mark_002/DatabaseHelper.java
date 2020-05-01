@@ -1,5 +1,6 @@
 package com.example.parker.barbot_mark_002;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -20,7 +21,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     //1
     private final Context myContext;
     private static String DB_PATH = "/data/data/com.example.parker.barbot_mark_002/";
-    private static String DB_NAME = "init_drink_info_03.db";
+    private static String DB_NAME = "init_drink_info_05.db";
     private SQLiteDatabase myDataBase;
 
     //1
@@ -61,7 +62,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } else {
             //String stackTrace = Log.getStackTraceString(ioe);
             //Toast.makeText(this.myContext,"DB doesn't exist",Toast.LENGTH_SHORT).show();
-            this.getReadableDatabase();
+            this.getWritableDatabase();
             try {
                 copyDataBase();
             } catch (IOException e) {
@@ -146,15 +147,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return data;
     }
 
+    public String updateDrinkAdj(String Liquid, Float Adj) {
+        ContentValues args = new ContentValues();
+        Cursor singlePointer = getQuery( "SELECT * From Liquids Where Liquid = '" + Liquid + "'"); //
+        singlePointer.moveToFirst();
+        Float initialValue = singlePointer.getFloat(3);
+        Float nextValue = Adj; //initial value is 1 for some reason
+        args.put("CurrentDrinkAdjustments", nextValue);
+        int rowsAffected = myDataBase.update("Liquids", args, "Liquid = ?", new String[]{Liquid});  //this is causing an error
+        Cursor singlePointer2 = getQuery( "SELECT * From Liquids Where Liquid = '" + Liquid + "'");
+        singlePointer2.moveToFirst();
+        Float ABC123 = singlePointer2.getFloat(3); //this is causing an error (worked with index located at 0, maybe it is still using the old table
+        return "" +ABC123;
+    }
 
-    //2
-    /**
-     * Updates the name field
-     * @param newName
-     * @param id
-     * @param oldName
-
-    public void updateName(String newName, int id, String oldName){
+    public String setAdjtoZero() {
+        ContentValues args = new ContentValues();
+        args.put("CurrentDrinkAdjustments", (float) 0);
+        int rowsAffected = myDataBase.update("Liquids", args, null,null);  //this is causing an error
+        return "number of rows affected "+rowsAffected;
     }
 
     //2
